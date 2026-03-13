@@ -65,13 +65,31 @@ java -jar target/y-x-0.1.0-SNAPSHOT.jar
 
 ---
 
+## 架构说明
+
+```
+环境变量 (X_API_KEY / X_API_SECRET)
+  └─→ BearerTokenProvider  启动时换取 Bearer Token（仅存 JVM 内存）
+        └─→ XStreamRuleService  同步过滤规则到 X API
+              └─→ XStreamService  建立长连接，实时监听推文流
+                    └─→ NotifyDispatcher  分发通知
+                          ├─→ LarkNotifier    ✅ 默认开启
+                          ├─→ TelegramNotifier ❌ 默认关闭
+                          └─→ QqNotifier      ❌ 默认关闭
+```
+
+**监听机制：** X Filtered Stream API v2（长连接实时推送，非轮询）
+**自动重连：** 断线后指数退避重连（5s → 10s → 20s ... 最长 5 分钟）
+**去重：** 每条推文入库前检查 tweet_id
+
 ## 功能规划
 
-- [ ] X API 接入与认证
-- [ ] 目标账号监控
-- [ ] 关键词监控
-- [ ] 数据持久化
-- [ ] 告警通知
+- [x] X API 接入与认证（Key/Secret → Bearer Token）
+- [x] Filtered Stream 实时监听
+- [x] 数据持久化（MySQL）
+- [x] Lark / Telegram / QQ 通知
+- [ ] 监控账号动态管理 REST API
+- [ ] 关键词过滤规则
 
 ---
 

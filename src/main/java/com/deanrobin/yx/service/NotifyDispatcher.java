@@ -15,15 +15,22 @@ public class NotifyDispatcher {
 
     private final List<Notifier> notifiers;
 
-    public void dispatch(NotifyMessage message) {
-        notifiers.stream()
+    /**
+     * 分发通知，返回是否至少有一个渠道发送成功
+     */
+    public boolean dispatch(NotifyMessage message) {
+        long successCount = notifiers.stream()
                 .filter(Notifier::isEnabled)
-                .forEach(notifier -> {
+                .filter(notifier -> {
                     try {
                         notifier.send(message);
+                        return true;
                     } catch (Exception e) {
                         log.warn("⚠️ [Notify] {} 发送异常（已跳过）: {}", notifier.getClass().getSimpleName(), e.getMessage());
+                        return false;
                     }
-                });
+                })
+                .count();
+        return successCount > 0;
     }
 }

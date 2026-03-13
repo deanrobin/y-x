@@ -36,5 +36,11 @@ public class FollowRecord {
 
     private LocalDateTime unfollowedAt;
 
+    /** 本次事件被轮询检测到的时间 */
+    private LocalDateTime detectedAt;
+
+    /** 通知消息实际发送成功的时间 */
+    private LocalDateTime notifiedAt;
+
     private LocalDateTime updatedAt = LocalDateTime.now();
 }

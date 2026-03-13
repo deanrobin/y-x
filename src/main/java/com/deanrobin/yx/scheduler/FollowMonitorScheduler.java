@@ -127,6 +127,8 @@ public class FollowMonitorScheduler {
     private void handleNewFollow(FollowWatcher watcher, XFollowService.FollowingUser followed) {
         log.info("🟢 [新增关注] @{} → @{} ({})", watcher.getHandle(), followed.getUsername(), followed.getName());
 
+        LocalDateTime detectedAt = LocalDateTime.now();
+
         // 存记录
         FollowRecord record = followRecordRepository
                 .findByWatcherHandleAndFollowingHandle(watcher.getHandle(), followed.getUsername())
@@ -136,9 +138,10 @@ public class FollowMonitorScheduler {
         record.setFollowingName(followed.getName());
         record.setFollowingUserId(followed.getId());
         record.setStatus("active");
-        record.setFollowedAt(LocalDateTime.now());
+        record.setFollowedAt(detectedAt);
+        record.setDetectedAt(detectedAt);
         record.setUnfollowedAt(null);
-        record.setUpdatedAt(LocalDateTime.now());
+        record.setUpdatedAt(detectedAt);
         followRecordRepository.save(record);
 
         // 发通知
@@ -150,18 +153,25 @@ public class FollowMonitorScheduler {
                 .content(String.format("➕ 新增关注了 %s (@%s)\n🔗 https://x.com/%s",
                         followed.getName(), followed.getUsername(), followed.getUsername()))
                 .tweetUrl("https://x.com/" + watcher.getHandle() + "/following")
-                .tweetTime(LocalDateTime.now().toString())
+                .tweetTime(detectedAt.toString())
                 .build();
-        notifyDispatcher.dispatch(message);
+        boolean sent = notifyDispatcher.dispatch(message);
+        if (sent) {
+            record.setNotifiedAt(LocalDateTime.now());
+            followRecordRepository.save(record);
+        }
     }
 
     private void handleUnfollow(FollowWatcher watcher, FollowRecord record) {
         log.info("🔴 [取消关注] @{} ✕ @{} ({})", watcher.getHandle(), record.getFollowingHandle(), record.getFollowingName());
 
+        LocalDateTime detectedAt = LocalDateTime.now();
+
         // 更新记录状态
         record.setStatus("unfollowed");
-        record.setUnfollowedAt(LocalDateTime.now());
-        record.setUpdatedAt(LocalDateTime.now());
+        record.setUnfollowedAt(detectedAt);
+        record.setDetectedAt(detectedAt);
+        record.setUpdatedAt(detectedAt);
         followRecordRepository.save(record);
 
         // 发通知
@@ -173,9 +183,13 @@ public class FollowMonitorScheduler {
                 .content(String.format("➖ 取消关注了 %s (@%s)\n🔗 https://x.com/%s",
                         record.getFollowingName(), record.getFollowingHandle(), record.getFollowingHandle()))
                 .tweetUrl("https://x.com/" + watcher.getHandle() + "/following")
-                .tweetTime(LocalDateTime.now().toString())
+                .tweetTime(detectedAt.toString())
                 .build();
-        notifyDispatcher.dispatch(message);
+        boolean sent = notifyDispatcher.dispatch(message);
+        if (sent) {
+            record.setNotifiedAt(LocalDateTime.now());
+            followRecordRepository.save(record);
+        }
     }
 
     private void saveSnapshot(String watcherHandle, Map<String, XFollowService.FollowingUser> currentMap) {

@@ -27,5 +27,11 @@ public class TweetRecord {
 
     private boolean notified = false;
 
+    /** 系统检测到该推文的时间（Stream 事件到达时间） */
+    private LocalDateTime detectedAt;
+
+    /** 通知消息实际发送成功的时间 */
+    private LocalDateTime notifiedAt;
+
     private LocalDateTime createdAt = LocalDateTime.now();
 }

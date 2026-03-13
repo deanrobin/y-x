@@ -163,6 +163,7 @@ public class XStreamService {
             log.info("🐦 新推文 @{}: {}", handle, text.substring(0, Math.min(60, text.length())));
 
             String tweetUrl = "https://x.com/" + handle + "/status/" + tweetId;
+            LocalDateTime detectedAt = LocalDateTime.now();
 
             // 存记录
             TweetRecord record = new TweetRecord();
@@ -171,6 +172,7 @@ public class XStreamService {
             record.setContent(text);
             record.setTweetUrl(tweetUrl);
             record.setTweetTime(LocalDateTime.now());
+            record.setDetectedAt(detectedAt);
 
             // 发通知
             NotifyMessage message = NotifyMessage.builder()
@@ -182,8 +184,9 @@ public class XStreamService {
                     .tweetTime(createdAt)
                     .build();
 
-            notifyDispatcher.dispatch(message);
-            record.setNotified(true);
+            boolean sent = notifyDispatcher.dispatch(message);
+            record.setNotified(sent);
+            if (sent) record.setNotifiedAt(LocalDateTime.now());
             tweetRecordRepository.save(record);
 
             // 更新账户最新 tweet_id

@@ -17,6 +17,7 @@ public class NotifyConfig {
     public static class Lark {
         private boolean enabled = true;
         private String webhookUrl;
+        private String signSecret; // 签名校验密钥，为空则不签名
     }
 
     @Data

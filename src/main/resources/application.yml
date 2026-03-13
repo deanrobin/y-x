@@ -44,6 +44,7 @@ notify:
   lark:
     enabled: true
     webhook-url: "https://open.feishu.cn/open-apis/bot/v2/hook/your_webhook_token"
+    sign-secret: ""   # 飞书机器人安全设置 → 签名校验密钥，不启用则留空
 
   # Telegram Bot
   telegram:

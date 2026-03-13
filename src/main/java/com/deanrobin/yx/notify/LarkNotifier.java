@@ -6,10 +6,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -32,10 +36,20 @@ public class LarkNotifier implements Notifier {
     public void send(NotifyMessage message) {
         try {
             String text = buildText(message);
-            Map<String, Object> body = Map.of(
-                    "msg_type", "text",
-                    "content", Map.of("text", text)
-            );
+            long timestamp = System.currentTimeMillis() / 1000;
+
+            Map<String, Object> body = new HashMap<>();
+            body.put("msg_type", "text");
+            body.put("content", Map.of("text", text));
+
+            // 签名校验（如果配置了 signSecret）
+            String signSecret = notifyConfig.getLark().getSignSecret();
+            if (signSecret != null && !signSecret.isBlank()) {
+                String sign = generateSign(timestamp, signSecret);
+                body.put("timestamp", String.valueOf(timestamp));
+                body.put("sign", sign);
+            }
+
             String json = objectMapper.writeValueAsString(body);
 
             HttpRequest request = HttpRequest.newBuilder()
@@ -55,9 +69,20 @@ public class LarkNotifier implements Notifier {
         }
     }
 
+    /**
+     * 飞书签名算法：HMAC-SHA256(timestamp + "\n" + secret) → Base64
+     */
+    private String generateSign(long timestamp, String secret) throws Exception {
+        String stringToSign = timestamp + "\n" + secret;
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(new SecretKeySpec(stringToSign.getBytes(), "HmacSHA256"));
+        byte[] signBytes = mac.doFinal(new byte[0]);
+        return Base64.getEncoder().encodeToString(signBytes);
+    }
+
     private String buildText(NotifyMessage msg) {
         return String.format(
-                "🐦 【X 监控】%s (@%s) 发推了！\n\n%s\n\n⏰ %s\n🔗 %s",
+                "【X消息】%s (@%s) 发推了！\n\n%s\n\n⏰ %s\n🔗 %s",
                 msg.getDisplayName(),
                 msg.getHandle(),
                 msg.getContent(),

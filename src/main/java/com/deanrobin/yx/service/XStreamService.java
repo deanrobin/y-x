@@ -51,15 +51,7 @@ public class XStreamService {
 
     @PostConstruct
     public void start() {
-        executor.submit(() -> {
-            try {
-                log.info(">>> 同步 Stream 过滤规则...");
-                ruleService.syncRulesFromDb();
-            } catch (Exception e) {
-                log.error("❌ Stream 规则同步失败: {}", e.getMessage());
-            }
-            connect();
-        });
+        log.warn("⚠️ X Filtered Stream 已禁用（需 Basic 付费版），当前使用轮询模式");
     }
 
     @PreDestroy

@@ -33,7 +33,7 @@ public class FollowMonitorScheduler {
 
     private static final int RATE_LIMIT_WARN_THRESHOLD = 15;
 
-    @Scheduled(fixedDelay = 60_000) // 每 1 分钟
+    @Scheduled(fixedDelay = 30 * 60_000) // 每 30 分钟（Free 版节省配额）
     public void checkFollowChanges() {
         List<FollowWatcher> watchers = watcherRepository.findByEnabledTrue();
         if (watchers.isEmpty()) return;

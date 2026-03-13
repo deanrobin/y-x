@@ -25,7 +25,7 @@ x:
   api:
     api-key: ${X_API_KEY}
     api-secret: ${X_API_SECRET}
-    poll-interval-seconds: 120   # 轮询间隔（秒），默认 2 分钟
+    poll-interval-seconds: 900   # 轮询间隔（秒），默认 15 分钟（Free 版配额限制）
 
   # 监控账户名单
   accounts:

@@ -16,7 +16,8 @@ public class XConfig {
 
     @Data
     public static class Api {
-        private String bearerToken;
+        private String apiKey;
+        private String apiSecret;
         private int pollIntervalSeconds = 120;
     }
 

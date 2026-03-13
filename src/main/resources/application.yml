@@ -19,10 +19,12 @@ logging:
 
 # ==============================
 # X (Twitter) API 配置
+# 敏感信息从环境变量读取，不写死在配置文件中
 # ==============================
 x:
   api:
-    bearer-token: "your_x_bearer_token_here"
+    api-key: ${X_API_KEY}
+    api-secret: ${X_API_SECRET}
     poll-interval-seconds: 120   # 轮询间隔（秒），默认 2 分钟
 
   # 监控账户名单

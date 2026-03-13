@@ -1,6 +1,6 @@
 package com.deanrobin.yx.service;
 
-import com.deanrobin.yx.config.XConfig;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class XApiService {
 
-    private final XConfig xConfig;
+    private final BearerTokenProvider bearerTokenProvider;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
@@ -31,7 +31,7 @@ public class XApiService {
             String url = "https://api.twitter.com/2/users/by/username/" + handle;
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
-                    .header("Authorization", "Bearer " + xConfig.getApi().getBearerToken())
+                    .header("Authorization", "Bearer " + bearerTokenProvider.getBearerToken())
                     .GET()
                     .build();
 
@@ -64,7 +64,7 @@ public class XApiService {
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url.toString()))
-                    .header("Authorization", "Bearer " + xConfig.getApi().getBearerToken())
+                    .header("Authorization", "Bearer " + bearerTokenProvider.getBearerToken())
                     .GET()
                     .build();
 

@@ -2,7 +2,7 @@
 <Configuration status="WARN" monitorInterval="30">
 
     <Properties>
-        <Property name="LOG_DIR">./logs</Property>
+        <Property name="LOG_DIR">/root/yuan-x/logs</Property>
         <Property name="CONSOLE_PATTERN">%d{HH:mm:ss} %highlight{%-5level}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=green, DEBUG=blue} [%cyan{%C{1}}] %msg%n</Property>
         <Property name="FILE_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%t] %C{1} - %msg%n</Property>
     </Properties>
